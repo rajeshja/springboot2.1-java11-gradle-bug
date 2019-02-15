@@ -1,0 +1,64 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.2.RELEASE'
+	id 'java'
+	//id 'net.ltgt.apt' version '0.10'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'rja.tesco'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+	maven { url 'https://projectlombok.org/edge-releases' }
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	//implementation('org.projectlombok:lombok:1.18.6')
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	//Comment out the above and uncomment below to get Gradle builds to work
+//	testImplementation 'org.springframework:spring-test'
+//	testImplementation 'org.springframework.boot:spring-boot-test'
+//	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+//	testImplementation 'io.projectreactor:reactor-test'
+//	testImplementation 'junit:junit:4.12'
+//	testImplementation 'org.assertj:assertj-core'
+//	testImplementation 'org.mockito:mockito-core'
+
+
+	compileOnly "org.projectlombok:lombok:edge-SNAPSHOT"
+	testCompileOnly "org.projectlombok:lombok:edge-SNAPSHOT"
+	annotationProcessor "org.projectlombok:lombok:edge-SNAPSHOT"
+	testAnnotationProcessor "org.projectlombok:lombok:edge-SNAPSHOT"
+}
+
+
+
+ext.moduleName = 'rja.tesco.price.main'
+
+compileJava {
+	inputs.property("moduleName", moduleName)
+	doFirst {
+		options.compilerArgs = [
+				'--module-path', classpath.asPath,
+		]
+		classpath = files()
+	}
+}
+
+compileTestJava {
+	inputs.property("moduleName", moduleName)
+	doFirst {
+		options.compilerArgs = [
+				'--module-path', classpath.asPath,
+				'--add-modules', 'junit',
+				'--add-reads', "$moduleName=junit",
+				'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+		]
+		classpath = files()
+	}
+}
